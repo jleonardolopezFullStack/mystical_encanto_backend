@@ -1,0 +1,148 @@
+- yarn init
+- yarn add express dotenv cors express-fileupload express-validator stripe mongoose bcryptjs cloudinary jsonwebtoken sharp
+- Creacion carpetas controllers, db, helpers middlewears, models, img, routers
+
+-----------------------------------------------------------------------------------------------
+**************************** VIDEOS ************************************************************
+-----------------------------------------------------------------------------------------------
+
+- como hacer u nSELECT y llenarlo con datos en API Rest en React: https://www.youtube.com/watch?v=irxE1ejuV9s&pp=ygUhY3JlYXIgdW5hIHRhYmxhIGRlIGlucHV0IGVuIHJlYWN0
+- creacion, manipulacion and delete de carpetas y archivos en node: https://www.youtube.com/watch?v=6RVANksAPTc
+- Como enviar formdata con Postman: https://www.youtube.com/watch?v=1yqNfqfZPB8
+- Como enviar formdata desde en frontend: https://www.youtube.com/watch?v=4sTmSlZDGow
+- Guia para manejar errores en Node: https://www.youtube.com/watch?v=mGPj-pCGS2c
+- Como codificar y decodificar en base64 javascript: https://www.youtube.com/watch?v=K43IxjEt13w
+- Libreria de React, seccion de como manejar los Input y sus bug en React: https://react.dev/reference/react-dom/components/input#controlling-an-input-with-a-state-variable
+
+-----------------------------------------------------------------------------------------------
+**************************** Index ************************************************************
+-----------------------------------------------------------------------------------------------
+
+const express = require("express");
+const cors = require("cors");
+const fileUpload = require("express-fileupload");
+require("dotenv").config();
+const authRouter = require("./router/authRoutes");
+const loginRouter = require("./router/loginRoter");
+const categoryRouter = require("./router/categoryRoutes");
+const productRouter = require("./router/productRoutes");
+
+const { connectionMongoose } = require("./db/mongooseConnection");
+const port = process.env.PORT;
+const app = express();
+//const port = 3002;
+
+const links = {
+  auth: "/auth",
+  login: "/login",
+  category: "/category",
+  product: "/product",
+};
+
+app.use(
+  cors({
+    //origin: "https://janmovies.netlify.app",
+    /*  methods: ["GET", "POST"],
+    credentials: true,*/
+  })
+);
+app.use(
+  express.urlencoded({ extended: false, limit: 10000, parameterLimit: 2 })  .... Esto me ayuda a recivir el form-data
+);
+app.use(express.static("public"));
+app.use(fileUpload());
+app.use(express.json());
+
+app.use(links.auth, authRouter);
+app.use(links.login, loginRouter);
+app.use(links.category, categoryRouter);
+app.use(links.product, productRouter);
+
+app.use("*", (req, res, next) => {
+  res.status(404).json({ msg: "Page not found 404" });
+});
+
+app.listen(port, () => {
+  console.log(`Listening in port ${port}`);
+});
+
+
+-----------------------------------------------------------------------------------------------
+**************************** PAGOS CON STRIPE ************************************************************
+-----------------------------------------------------------------------------------------------
+- Un video de FAZT CODE es: https://www.youtube.com/watch?v=4Ib6rxx2BUk
+  En este video no lo segui cuando hice los primeros pasos, sin embargo resuelve la duda de como mandar un precio desde mi codigo sin setear el valor en la pagina de STRIPE
+- La parte de pagos se efectua mas en el backend, en el front solo se hace un peticion POST a nuestra API
+- El checkoutController que hice fue este (No se sigio el video de FAZT, sin emabrgo FAZT profundiza mucho mas en este):
+
+require("dotenv").config();
+const stripe = require("stripe")(process.env.KEY);
+const port = process.env.PORT || 3001;
+
+const checkoutPost = async (req, res) => {
+  const items = req.body.items;
+  console.log("probando si entramos aqui");
+  let lineItems = [];
+  items.forEach((item) => {
+    lineItems.push({ price: item.idStripe, quantity: item.quantity });
+  });
+  const session = await stripe.checkout.sessions.create({
+    line_items: lineItems,
+    mode: "payment",
+    success_url:
+      /* "https://janmovies.netlify.app/success" */ "https://coinmarketcap.com/",
+    cancel_url:
+      /* "https://janmovies.netlify.app/cancel" */ "https://janmovies.netlify.app/cart",
+  });
+
+  res.json({ msg: lineItems, url: session.url });
+};
+
+module.exports = { checkoutPost };
+
+- Nuevamente me gasto timepo configurar un poco el Stripe, y solo daba error era por no estar mirando cosas como: secret key instead of published key, que el price
+  debe estar su codigo con la session de su respectivo secret key.
+-----------------------------------------------------------------------------------------------
+****************************Cosas que faltan para creacion general ************************************************************
+-----------------------------------------------------------------------------------------------
+******parte login y register:
+
+- terminar el user y admin role como guardar en database
+- Cambiar ciertos logs de respuesta
+
+****** Parte de categoria y producto:
+- El sistema de categoria-producto esta designado por la variante. Cada diferente variante es un producto diferente y se ancla a la misma categoria si pertenece.
+  Esta todo el CRUD de creacion de un producto con variantes, incluso con anadir imagenes y borrarlas en todo lugar. carpeta dentro img y Cloudinary.
+-
+- No se puede automatizar el procedimiento del id de stripe
+- Cuando se manda el producto sin una categoria, hace Crash
+- No se hizo en el panel de control la forma de hacer update al producto
+  
+   # Enable Rewrite Engine
+RewriteEngine On
+
+# Redirect all requests to index.html
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+- 
+
+
+
+
+  /*"scripts":  {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  }, */
+
+
+
+
+
+
+

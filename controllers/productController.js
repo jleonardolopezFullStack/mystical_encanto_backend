@@ -84,7 +84,7 @@ const productPost = async (req, res) => {
     const createImgFolder = (nameFolder) => {
       fs.mkdir(nameFolder, function (err) {
         if (err) {
-          console.error("error occured", err);
+          console.error("error occured AQUIIIIIII", err);
           return;
         }
         console.log("directory created");
@@ -99,7 +99,11 @@ const productPost = async (req, res) => {
       `./img/uploads/${nameFolder}/${name.toUpperCase()}_${variant.toUpperCase()}_${quantityImg}.png`,
       async function (err) {
         if (err) {
-          res.status(400).json({ err });
+          console.log("error folder img:" + err);
+          res.status(400).json({
+            msg: "Something went wrong to Create Folder img for product",
+            err,
+          });
         } else {
           createImgFolder(
             `./img/optimize/${name.toUpperCase()}_${variant.toUpperCase()}`
@@ -137,8 +141,10 @@ const productPost = async (req, res) => {
       }
     );
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ msg: "Something went wrong to Create Product" });
+    console.log("Folder error leo:" + error);
+    res
+      .status(400)
+      .json({ msg: "Something went wrong with yje Folder", error });
   }
 };
 
