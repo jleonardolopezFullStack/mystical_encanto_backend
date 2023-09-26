@@ -15,7 +15,7 @@ const checkoutPost = async (req, res) => {
     }); */
 
     const items = req.body.items;
-    console.log(items);
+    console.log(`items:` + items);
 
     let lineItems = [];
     items.forEach((item) => {
@@ -48,8 +48,8 @@ const checkoutPost = async (req, res) => {
       allow_promotion_codes: true,
       line_items: lineItems,
       mode: "payment",
-      success_url: "http://127.0.0.1:5173/checkout/success",
-      cancel_url: "http://127.0.0.1:5173/checkout/cancel",
+      success_url: "https://daravecraft.com/checkout/success",
+      cancel_url: "https://daravecraft.com/checkout/cancel",
     });
 
     console.log(session);
